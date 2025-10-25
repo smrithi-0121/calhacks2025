@@ -11,7 +11,7 @@
     "content_scripts": [
       {
         "matches": [
-          "*://chat.openai.com/*",
+          "*://chatgpt.com/*",
           "*://gemini.google.com/app/*",
           "*://*.midjourney.com/*",
           "*://*.stable-diffusion-webui.github.io/*",

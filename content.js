@@ -10,16 +10,26 @@ const PROMPT_INPUT_SELECTORS = [
     // 🥇 Highly specific selectors for Gemini
     'rich-textarea.text-input-field_textarea', 
     'rich-textarea[enterkeyhint="send"]',
+    '.text-input-field-main-area', // Gemini container
+
+    //for chat
+    '#prompt-textarea', 
     
     // 🥈 General/Fallback selectors
     'textarea[placeholder*="Send a message"]', 
-    '.text-input-field-main-area textarea', 
     'textarea[data-testid="textarea"]',
-    '#prompt-textarea', 
     'input[placeholder*="Prompt"]', 
 ];
 
 const SUBMIT_BUTTON_SELECTORS = [
+    // Specific IDs/Test-IDs
+    '#composer-submit-button',
+    'button[data-testid="send-button"]',
+    
+    // Specific custom element
+    'composer-submit-button',
+
+    // Generic fallbacks
     'button[aria-label*="Send"]',
     'button[type="submit"]',
     'button:has(svg)', 
@@ -33,11 +43,7 @@ let lastPromptValue = ""; // Stores the prompt text before submission clears it
 
 // ⚠️ We use a highly stable element for the polling anchor
 function getPromptInput() {
-    // Prioritize the stable parent container/main area
-    const mainArea = document.querySelector('.text-input-field-main-area');
-    if (mainArea) return mainArea; 
-
-    // Fallback to the rich-textarea element itself
+    // This function will now find the *best* input element available
     for (const selector of PROMPT_INPUT_SELECTORS) {
         const input = document.querySelector(selector);
         if (input) return input;
@@ -48,7 +54,8 @@ function getPromptInput() {
 function getSubmitButton(inputElement) {
     // This function is still needed for meter positioning
     if (inputElement) {
-        let parentForm = inputElement.closest('form') || inputElement.closest('div');
+        // Try finding the button relative to the input first
+        let parentForm = inputElement.closest('form') || inputElement.closest('div[role="presentation"]');
         if (parentForm) {
             for (const selector of SUBMIT_BUTTON_SELECTORS) {
                 const button = parentForm.querySelector(selector);
@@ -57,11 +64,13 @@ function getSubmitButton(inputElement) {
         }
     }
 
+    // Fallback to searching the whole document
     for (const selector of SUBMIT_BUTTON_SELECTORS) {
         const button = document.querySelector(selector);
         if (button) return button;
     }
     
+    // Last resort, find the main input area as an anchor
     const mainArea = document.querySelector('.text-input-field-main-area');
     if (mainArea) return mainArea;
     
@@ -69,6 +78,7 @@ function getSubmitButton(inputElement) {
 }
 
 function calculateEnergy(promptText) {
+    console.log("PromptPowerMeter: calculateEnergy RUNNING!"); // <-- Added log
     if (!promptText || promptText.trim() === '') {
         return 0;
     }
@@ -101,8 +111,8 @@ function createMeterDisplay(button) {
         document.body.appendChild(meter);
     }
     const buttonRect = button.getBoundingClientRect();
-    meter.style.top = `${buttonRect.top - 40}px`;
-    meter.style.left = `${buttonRect.left + buttonRect.width / 2 - 50}px`;
+    meter.style.top = `${window.scrollY + buttonRect.top - 40}px`; // Added scrollY
+    meter.style.left = `${window.scrollX + buttonRect.left + buttonRect.width / 2 - 50}px`; // Added scrollX
 
     meter.style.opacity = '1';
     meter.textContent = 'Estimating...';
@@ -122,6 +132,8 @@ function displayEnergyEstimate(joules, button) {
 // --- Main Logic ---
 
 function setupPromptMonitoring() {
+    // ⚠️ REVISED FIX: Get input first, then button.
+    // We pass promptInput to getSubmitButton for better context.
     const promptInput = getPromptInput();
     const submitButton = getSubmitButton(promptInput);
 
@@ -138,7 +150,15 @@ function setupPromptMonitoring() {
                 const energyEstimate = calculateEnergy(promptText);
                 
                 console.log(`Prompt submitted. Estimated Energy: ${energyEstimate} J`);
-                displayEnergyEstimate(energyEstimate, submitButton); 
+                
+                // ⚠️ REVISED FIX: Get the button *right now* to avoid stale references.
+                // This addresses your concern about the button changing.
+                const currentSubmitButton = getSubmitButton(promptInput);
+                if (currentSubmitButton) {
+                    displayEnergyEstimate(energyEstimate, currentSubmitButton); 
+                } else {
+                    console.warn("PromptPowerMeter: Couldn't find submit button to display meter.");
+                }
                 
                 // Storage logic
                 chrome.storage.local.get(['totalEnergyJoules'], (result) => {
@@ -149,28 +169,40 @@ function setupPromptMonitoring() {
             }
         };
 
-        console.log('PromptPowerMeter: Monitoring Input Element Found.');
+        console.log('PromptPowerMeter: Monitoring Input Element Found.', promptInput);
 
 
-        // --- 2. TIMER POLLING LOGIC (The Aggressive Fix) ---
         // --- 2. TIMER POLLING LOGIC (The Aggressive Fix) ---
         pollingId = setInterval(() => {
             let currentPromptValue = "";
             
-            // ⚠️ FINAL FIX: Safely retrieve the current value
-            if (promptInput.value !== undefined) {
-                // Case 1: Standard input/textarea (uses .value)
-                currentPromptValue = promptInput.value;
-            } else {
-                // Case 2: Custom/Container input (search for contenteditable)
-                const contentEditableInput = promptInput.querySelector('[contenteditable="true"]') || 
-                                             promptInput.querySelector('rich-textarea') || 
-                                             promptInput.querySelector('textarea');
-                
-                if (contentEditableInput) {
-                    // Use textContent for contenteditable divs, and fallback to .value
-                    currentPromptValue = contentEditableInput.textContent || contentEditableInput.value || "";
+            // ⚠️ REVISED FIX: Safely retrieve the current value based on element type
+            try {
+                if (promptInput.value !== undefined) {
+                    // Case 1: Standard <textarea> or <input> (uses .value)
+                    currentPromptValue = promptInput.value;
+                } else if (promptInput.isContentEditable) {
+                    // Case 2: A contenteditable <div> (like ChatGPT's #prompt-textarea)
+                    currentPromptValue = promptInput.textContent;
+                } else if (promptInput.matches('rich-textarea, .text-input-field-main-area')) {
+                    // Case 3: A container (like Gemini's)
+                    // Find the *actual* input inside it.
+                    const internalInput = promptInput.querySelector('textarea') || promptInput.querySelector('[contenteditable="true"]');
+                    if (internalInput) {
+                         // Use textContent for contenteditable, value for textarea
+                        currentPromptValue = internalInput.textContent || internalInput.value || "";
+                    } else {
+                        // Fallback if structure is unexpected
+                        currentPromptValue = promptInput.textContent;
+                    }
+                } else {
+                    // Fallback for any other element
+                    currentPromptValue = promptInput.textContent;
                 }
+
+            } catch (e) {
+                console.error("PromptPowerMeter: Error reading prompt value.", e);
+                currentPromptValue = ""; // Failsafe
             }
 
             // Ensure currentPromptValue is a string before proceeding
@@ -184,6 +216,7 @@ function setupPromptMonitoring() {
             
             if (isInputCleared && wasContentPresent) {
                 // Submission detected! Measure the last known value.
+                console.log("PromptPowerMeter: Submission detected!"); // <-- ADDED LOG
                 processSubmission(lastPromptValue);
                 lastPromptValue = ""; // Reset the tracker
                 return; 
@@ -196,7 +229,7 @@ function setupPromptMonitoring() {
 
         }, 100); // Check every 100 milliseconds
 
-        console.log(`PromptPowerMeter: Polling started (ID: ${pollingId}). Event listeners disabled.`);
+        console.log(`PromptPowerMeter: Polling started (ID: ${pollingId}).`);
 
 
         // --- 3. MUTATION OBSERVER (For cleanup/re-init) ---
@@ -205,14 +238,15 @@ function setupPromptMonitoring() {
         }
 
         observer = new MutationObserver(() => {
-            const currentInput = getPromptInput();
-            
-            if (!currentInput || currentInput !== promptInput) { 
-                console.log('PromptPowerMeter: Input element changed or disappeared, re-scanning...');
+            // Check if the input we are watching is still in the document
+            if (!document.body.contains(promptInput)) {
+                console.log('PromptPowerMeter: Input element disappeared, re-scanning...');
                 clearInterval(pollingId); // Stop the old timer
                 observer.disconnect();
                 setTimeout(setupPromptMonitoring, 1000); // Restart setup
             }
+            // You could also re-run getPromptInput() here to see if a *better*
+            // one has appeared, but checking for removal is most important.
         });
         observer.observe(document.body, { childList: true, subtree: true });
 
