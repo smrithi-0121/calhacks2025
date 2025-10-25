@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Energy Tracker</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <div class="popup-header">
+      <h1>⚡ AI Energy Tracker</h1>
+      <p class="tagline">Making AI more sustainable</p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">💡</div>
+        <div class="stat-info">
+          <div class="stat-label">Session Energy</div>
+          <div class="stat-value" id="session-energy">0 Wh</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">🌍</div>
+        <div class="stat-info">
+          <div class="stat-label">Carbon Footprint</div>
+          <div class="stat-value" id="session-carbon">0 g CO₂</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-info">
+          <div class="stat-label">Total Prompts</div>
+          <div class="stat-value" id="total-prompts">0</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">🌱</div>
+        <div class="stat-info">
+          <div class="stat-label">Energy Saved</div>
+          <div class="stat-value" id="energy-saved">0 Wh</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="impact-section">
+      <h3>Your Impact</h3>
+      <div class="impact-comparison" id="impact-comparison">
+        Loading...
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="reset-stats" class="btn btn-secondary">Reset Session</button>
+      <button id="learn-more" class="btn btn-primary">Learn More</button>
+    </div>
+
+    <div class="footer">
+      <p>💚 Every prompt matters</p>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
