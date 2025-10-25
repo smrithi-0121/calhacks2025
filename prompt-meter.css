@@ -1,0 +1,28 @@
+/* prompt-meter.css */
+
+#prompt-power-meter {
+    position: fixed;
+    z-index: 99999; /* Ensure it's on top */
+    padding: 5px 10px;
+    border-radius: 5px;
+    background-color: #333; /* Dark background */
+    color: white; /* White text */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: opacity 2s ease-out; /* Smooth fade out */
+    opacity: 0; /* Hidden by default */
+    pointer-events: none; /* Allow clicks through it */
+}
+
+/* Animation for fading out */
+.fade-out {
+    animation: fadeOutAnimation 3s forwards; /* 3 seconds total duration */
+}
+
+@keyframes fadeOutAnimation {
+    0% { opacity: 1; }
+    80% { opacity: 1; } /* Stay fully opaque for a while */
+    100% { opacity: 0; }
+}

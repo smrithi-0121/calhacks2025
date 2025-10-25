@@ -1,0 +1,33 @@
+{
+    "manifest_version": 3,
+    "name": "PromptPowerMeter",
+    "version": "1.0",
+    "description": "Estimates AI energy usage based on your prompts.",
+    "icons": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "content_scripts": [
+      {
+        "matches": [
+          "*://chat.openai.com/*",
+          "*://gemini.google.com/app/*",
+          "*://*.midjourney.com/*",
+          "*://*.stable-diffusion-webui.github.io/*",
+          "*://*.huggingface.co/*"
+          // Add more AI sites here as needed!
+        ],
+        "js": ["content.js"],
+        "css": ["prompt-meter.css"]
+      }
+    ],
+    "background": {
+      "service_worker": "service-worker.js"
+    },
+    "permissions": [
+      "storage",
+      "activeTab",
+      "scripting"
+    ]
+  }
