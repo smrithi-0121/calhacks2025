@@ -10,11 +10,18 @@ const PROMPT_INPUT_SELECTORS = [
     // 🥇 Highly specific selectors for Gemini
     'rich-textarea.text-input-field_textarea', 
     'rich-textarea[enterkeyhint="send"]',
+    
     '.text-input-field-main-area', // Gemini container
 
     //for chat
     '#prompt-textarea', 
+
+    // for claudesu (The div input with data-testid)
+    "[data-testid='chat-input']",
     
+    // Fallback for Claude input (contenteditable div)
+    '[contenteditable="true"][role="textbox"]',
+
     // 🥈 General/Fallback selectors
     'textarea[placeholder*="Send a message"]', 
     'textarea[data-testid="textarea"]',
@@ -25,6 +32,12 @@ const SUBMIT_BUTTON_SELECTORS = [
     // Specific IDs/Test-IDs
     '#composer-submit-button',
     'button[data-testid="send-button"]',
+    
+    // claude: The most specific combination of class and aria-label
+    '.inline-flex.shrink-0[aria-label="Send message"]', 
+    
+    // claude fallback (Plain aria-label targeting any element)
+    '[aria-label="Send message"]',
     
     // Specific custom element
     'composer-submit-button',

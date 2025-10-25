@@ -13,7 +13,7 @@
         "matches": [
           "*://chatgpt.com/*",
           "*://gemini.google.com/app/*",
-          "*://*.midjourney.com/*",
+          "*://claude.ai/new/*",
           "*://*.stable-diffusion-webui.github.io/*",
           "*://*.huggingface.co/*"
           // Add more AI sites here as needed!
