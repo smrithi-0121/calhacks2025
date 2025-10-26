@@ -3,7 +3,7 @@
 **pranAI** is a Chrome extension that tracks the energy used by your AI prompts and helps you make them more efficient. It estimates the environmental cost of each request, suggests optimized rewrites, and visualizes your total energy savings through real-world comparisons.
 ---
 
-## ⚙️ Features
+## Features
 * **Energy Calculator:** Instantly estimates the energy and CO₂ footprint of every AI prompt.
 * **Smart Rewrite Suggestions:** Recommends shorter, more efficient prompt alternatives that maintain intent and clarity.
 * **Impact Tracker:** Visualizes your total energy saved with relatable metrics
