@@ -176,7 +176,11 @@ const PromptOptimizer = {
       'provide assistance': 'help',
       'please ': '',
       'could you ': '',
-      'can you ': ''
+      'can you ': '', 
+      'thank you': '',
+      'good morning': '',
+      'good afternoon': '',
+      'good night':''
     };
     
     Object.entries(replacements).forEach(([verbose, concise]) => {
