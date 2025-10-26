@@ -8,6 +8,7 @@ class AIEnergyTracker {
     this.textArea = null;
     this.sessionEnergy = 0;
     this.sessionCarbon = 0;
+    this.totalPrompts = 0;
     
     this.init();
   }
@@ -234,10 +235,13 @@ class AIEnergyTracker {
   recordPromptSent() {
     const energy = parseFloat(this.overlayElement.dataset.currentEnergy || 0);
     const carbon = parseFloat(this.overlayElement.dataset.currentCarbon || 0);
+    
 
     if (energy > 0) {
       this.sessionEnergy += energy;
       this.sessionCarbon += carbon;
+      this.totalPrompts+=1
+      console.log(this.totalPrompts)
       
       // Update session display
       this.overlayElement.querySelector('.session-energy').textContent = 
@@ -255,9 +259,10 @@ class AIEnergyTracker {
 
   async loadSessionStats() {
     try {
-      const result = await chrome.storage.local.get(['sessionEnergy', 'sessionCarbon']);
+      const result = await chrome.storage.local.get(['sessionEnergy', 'sessionCarbon', 'totalPrompts']);
       this.sessionEnergy = result.sessionEnergy || 0;
       this.sessionCarbon = result.sessionCarbon || 0;
+      this.totalPrompts = result.totalPrompts || 0;
       
       this.overlayElement.querySelector('.session-energy').textContent = 
         EnergyCalculator.formatEnergy(this.sessionEnergy);
@@ -271,6 +276,7 @@ class AIEnergyTracker {
       await chrome.storage.local.set({
         sessionEnergy: this.sessionEnergy,
         sessionCarbon: this.sessionCarbon,
+        totalPrompts: this.totalPrompts,
         lastUpdated: Date.now()
       });
     } catch (error) {
