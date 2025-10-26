@@ -223,7 +223,7 @@ function setupEventListeners() {
   // Learn more button
   document.getElementById('learn-more').addEventListener('click', () => {
     chrome.tabs.create({
-      url: 'https://github.com/your-username/ai-energy-tracker' // Update with your repo
+      url: 'https://github.com/smrithi-0121/calhacks2025' // Update with your repo
     });
   });
 }
