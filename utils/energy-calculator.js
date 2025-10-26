@@ -151,7 +151,7 @@ const PromptOptimizer = {
     const fillerWords = [
       'just', 'really', 'very', 'quite', 'rather', 'somewhat',
       'basically', 'actually', 'literally', 'honestly',
-      'I think', 'I believe', 'in my opinion', 'it seems like'
+      'I think', 'I believe', 'in my opinion', 'it seems like', 'like'
     ];
     
     fillerWords.forEach(filler => {
@@ -182,7 +182,9 @@ const PromptOptimizer = {
       'thank you': '',
       'good morning': '',
       'good afternoon': '',
-      'good night':''
+      'good night':'', 
+      'hi':'',
+      'hello':''
     };
     
     Object.entries(replacements).forEach(([verbose, concise]) => {
