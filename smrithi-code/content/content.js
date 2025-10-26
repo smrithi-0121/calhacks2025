@@ -45,6 +45,27 @@ class AIEnergyTracker {
     
     // Start monitoring
     this.startMonitoring();
+
+    this.monitorTabClose();
+  }
+
+
+  monitorTabClose() {
+    // The 'beforeunload' event fires when the page is about to be unloaded.
+    window.addEventListener('beforeunload', () => {
+      console.log('AI Energy Tracker: Tab is closing or navigating away...');
+      this.sessionEnergy = 0
+      this.saveSessionStats()
+      //sessionEnergy = 0
+      // You can add logic here to:
+      // 1. Save any current, unsaved data (though it should be done dynamically).
+      // 2. Perform cleanup.
+      
+      // IMPORTANT: Chrome Storage is asynchronous, but 'beforeunload' is synchronous.
+      // For critical data saving, you must use a technique that ensures the write
+      // completes before the page unloads, which is generally complex and discouraged.
+      // Rely on dynamic saving (like the prompt counting logic) instead.
+    });
   }
 
   findTextArea() {
