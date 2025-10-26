@@ -1,15 +1,15 @@
-/* AI Energy Tracker Overlay Styles */
+/* pranAI Overlay Styles */
 
 #ai-energy-overlay {
   position: fixed;
   top: 20px;
   right: 20px;
   z-index: 999999;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Poppins', sans-serif; /*-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;*/
 }
 
 .energy-tracker-container {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #5b9bc4 0%, #badbc6 100%);
   border-radius: 16px;
   padding: 20px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);

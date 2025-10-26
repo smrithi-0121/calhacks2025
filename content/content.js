@@ -1,5 +1,5 @@
 // Content script that runs on AI chat websites
-console.log('AI Energy Tracker: Content script loaded');
+console.log('pranAI: Content script loaded');
 
 class AIEnergyTracker {
   constructor() {
@@ -32,7 +32,7 @@ class AIEnergyTracker {
   }
 
   setup() {
-    console.log('AI Energy Tracker: Setting up on', this.platform);
+    console.log('pranAI: Setting up on', this.platform);
     
     // Find the input textarea
     this.findTextArea();
@@ -53,18 +53,9 @@ class AIEnergyTracker {
   monitorTabClose() {
     // The 'beforeunload' event fires when the page is about to be unloaded.
     window.addEventListener('beforeunload', () => {
-      console.log('AI Energy Tracker: Tab is closing or navigating away...');
+      console.log('pranAI: Tab is closing or navigating away...');
       this.sessionEnergy = 0
       this.saveSessionStats()
-      //sessionEnergy = 0
-      // You can add logic here to:
-      // 1. Save any current, unsaved data (though it should be done dynamically).
-      // 2. Perform cleanup.
-      
-      // IMPORTANT: Chrome Storage is asynchronous, but 'beforeunload' is synchronous.
-      // For critical data saving, you must use a technique that ensures the write
-      // completes before the page unloads, which is generally complex and discouraged.
-      // Rely on dynamic saving (like the prompt counting logic) instead.
     });
   }
 
@@ -85,7 +76,7 @@ class AIEnergyTracker {
       this.textArea = document.querySelector(selector);
       
       if (this.textArea) {
-        console.log('AI Energy Tracker: Found input element');
+        console.log('pranAI: Found input element');
         clearInterval(findTextAreaInterval);
       }
     }, 1000);
@@ -235,7 +226,7 @@ async recordEnergySaved(energySaved) {
 
   startMonitoring() {
     if (!this.textArea) {
-      console.log('AI Energy Tracker: No textarea found, retrying...');
+      console.log('pranAI: No textarea found, retrying...');
       setTimeout(() => this.startMonitoring(), 2000);
       return;
     }
@@ -378,7 +369,7 @@ async recordEnergySaved(energySaved) {
       // Save to storage
       this.saveSessionStats();
 
-      console.log('AI Energy Tracker: Prompt sent -', {
+      console.log('pranAI: Prompt sent -', {
         energy: EnergyCalculator.formatEnergy(energy),
         carbon: EnergyCalculator.formatCarbon(carbon)
       });

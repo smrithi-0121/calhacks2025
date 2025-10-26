@@ -1,11 +1,11 @@
 /* global chrome */
 
-// Background service worker for AI Energy Tracker
-console.log('AI Energy Tracker: Background service worker started');
+// Background service worker for pranAI
+console.log('pranAI: Background service worker started');
 
 // Initialize storage on install
 chrome.runtime.onInstalled.addListener(async (details) => {
-  console.log('AI Energy Tracker: Extension installed/updated', details.reason);
+  console.log('pranAI: Extension installed/updated', details.reason);
   
   if (details.reason === 'install') {
     // First time installation
@@ -33,7 +33,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
         chrome.notifications.create({
           type: 'basic',
           iconUrl: 'icons/icon128.png',
-          title: '⚡ AI Energy Tracker Installed!',
+          title: '⚡ pranAI Installed!',
           message: 'Start tracking your AI energy usage on ChatGPT, Claude, and more.',
           priority: 2
         });
@@ -42,7 +42,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
       console.log('Notifications not available:', error);
     }
   } else if (details.reason === 'update') {
-    console.log('AI Energy Tracker: Extension updated');
+    console.log('pranAI: Extension updated');
   }
 });
 
@@ -134,7 +134,7 @@ async function handlePromptSent(data, tab) {
     
     updateBadge(newSessionEnergy);
     
-    console.log('AI Energy Tracker: Stats updated', {
+    console.log('pranAI: Stats updated', {
       sessionEnergy: newSessionEnergy,
       sessionCarbon: newSessionCarbon,
       totalPrompts: newTotalPrompts
@@ -203,7 +203,7 @@ async function resetSessionStats() {
     
     updateBadge(0);
     
-    console.log('AI Energy Tracker: Session stats reset');
+    console.log('pranAI: Session stats reset');
   } catch (error) {
     console.error('Error resetting session stats:', error);
     throw error;
@@ -224,7 +224,7 @@ async function updateSettings(newSettings) {
     };
     
     await chrome.storage.local.set({ settings: updatedSettings });
-    console.log('AI Energy Tracker: Settings updated', updatedSettings);
+    console.log('pranAI: Settings updated', updatedSettings);
   } catch (error) {
     console.error('Error updating settings:', error);
     throw error;
@@ -344,7 +344,7 @@ function setupDailyReset() {
   const msUntilMidnight = tomorrow - now;
   
   setTimeout(async () => {
-    console.log('AI Energy Tracker: Daily reset triggered');
+    console.log('pranAI: Daily reset triggered');
     
     try {
       const stats = await chrome.storage.local.get([
@@ -370,7 +370,7 @@ function setupDailyReset() {
       
       await resetSessionStats();
       
-      console.log('AI Energy Tracker: Daily reset complete');
+      console.log('pranAI: Daily reset complete');
     } catch (error) {
       console.error('Error during daily reset:', error);
     }
@@ -378,7 +378,7 @@ function setupDailyReset() {
     setupDailyReset();
   }, msUntilMidnight);
   
-  console.log(`AI Energy Tracker: Daily reset scheduled in ${Math.floor(msUntilMidnight / 1000 / 60)} minutes`);
+  console.log(`pranAI: Daily reset scheduled in ${Math.floor(msUntilMidnight / 1000 / 60)} minutes`);
 }
 
 setupDailyReset();
@@ -396,7 +396,7 @@ async function cleanupOldData() {
     
     if (cleanedHistory.length !== history.length) {
       await chrome.storage.local.set({ promptHistory: cleanedHistory });
-      console.log(`AI Energy Tracker: Cleaned up ${history.length - cleanedHistory.length} old events`);
+      console.log(`pranAI: Cleaned up ${history.length - cleanedHistory.length} old events`);
     }
   } catch (error) {
     console.error('Error during cleanup:', error);
@@ -406,7 +406,7 @@ async function cleanupOldData() {
 setInterval(cleanupOldData, 7 * 24 * 60 * 60 * 1000);
 cleanupOldData();
 
-console.log('AI Energy Tracker: Background service worker fully initialized');
+console.log('pranAI: Background service worker fully initialized');
 
 async function recordEnergySaved(originalEnergy, optimizedEnergy) {
   const saved = originalEnergy - optimizedEnergy;

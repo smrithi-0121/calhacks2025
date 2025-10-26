@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "AI Energy Tracker",
+  "name": "pranAI",
   "version": "1.0.0",
   "description": "Track and reduce the energy consumption of your AI prompts",
   "permissions": [
