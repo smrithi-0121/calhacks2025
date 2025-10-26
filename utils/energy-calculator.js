@@ -148,8 +148,23 @@ const PromptOptimizer = {
    * Optimize prompt without using AI
    */
   optimizePrompt(text) {
-    let optimized = text;
-    const suggestions = [];
+  let optimized = text;
+  const suggestions = [];
+  
+  // 1. Remove excessive repeated characters (NEW!)
+  // Matches 10+ repeated characters and reduces to just 1-2
+  const repeatedCharPattern = /(.)\1{9,}/g;
+  const repeatedMatches = optimized.match(repeatedCharPattern);
+  if (repeatedMatches) {
+    repeatedMatches.forEach(match => {
+      const char = match[0];
+      const count = match.length;
+      // Keep just 1 character (or 2 for punctuation like "!!")
+      const replacement = /[!?.]/.test(char) ? char + char : char;
+      optimized = optimized.replace(match, replacement);
+      suggestions.push(`Removed ${count - replacement.length} excessive '${char}' characters`);
+    });
+  }
     
     // 1. Remove filler words
     const fillerWords = [
@@ -192,44 +207,44 @@ const PromptOptimizer = {
     };
     
     Object.entries(replacements).forEach(([verbose, concise]) => {
-      const regex = new RegExp(verbose, 'gi');
-      if (regex.test(optimized)) {
-        optimized = optimized.replace(regex, concise);
-        suggestions.push(`Shortened: "${verbose}" → "${concise}"`);
-      }
-    });
-    
-    // 3. Remove redundant punctuation
-    optimized = optimized.replace(/\.{2,}/g, '.');
-    optimized = optimized.replace(/!{2,}/g, '!');
-    optimized = optimized.replace(/\?{2,}/g, '?');
-    
-    // 4. Clean up extra whitespace
-    optimized = optimized.replace(/\s+/g, ' ').trim();
-    
-    // 5. Calculate savings
-    const originalTokens = EnergyCalculator.estimateTokens(text);
-    const optimizedTokens = EnergyCalculator.estimateTokens(optimized);
-    const tokensSaved = originalTokens - optimizedTokens;
-    const percentSaved = originalTokens > 0 ? (tokensSaved / originalTokens * 100).toFixed(1) : 0;
-    
-    const originalEnergy = EnergyCalculator.calculateEnergy(text);
-    const optimizedEnergy = EnergyCalculator.calculateEnergy(optimized);
-    const energySaved = originalEnergy - optimizedEnergy;
-    
-    return {
-      original: text,
-      optimized: optimized,
-      originalTokens,
-      optimizedTokens,
-      tokensSaved,
-      percentSaved,
-      originalEnergy,
-      optimizedEnergy,
-      energySaved,
-      suggestions: suggestions.slice(0, 3) // Show top 3 suggestions
-    };
-  }
+    const regex = new RegExp(verbose, 'gi');
+    if (regex.test(optimized)) {
+      optimized = optimized.replace(regex, concise);
+      suggestions.push(`Shortened: "${verbose}" → "${concise}"`);
+    }
+  });
+  
+  // 4. Remove redundant punctuation
+  optimized = optimized.replace(/\.{2,}/g, '.');
+  optimized = optimized.replace(/!{2,}/g, '!');
+  optimized = optimized.replace(/\?{2,}/g, '?');
+  
+  // 5. Clean up extra whitespace
+  optimized = optimized.replace(/\s+/g, ' ').trim();
+  
+  // 6. Calculate savings
+  const originalTokens = EnergyCalculator.estimateTokens(text);
+  const optimizedTokens = EnergyCalculator.estimateTokens(optimized);
+  const tokensSaved = originalTokens - optimizedTokens;
+  const percentSaved = originalTokens > 0 ? (tokensSaved / originalTokens * 100).toFixed(1) : 0;
+  
+  const originalEnergy = EnergyCalculator.calculateEnergy(text);
+  const optimizedEnergy = EnergyCalculator.calculateEnergy(optimized);
+  const energySaved = originalEnergy - optimizedEnergy;
+  
+  return {
+    original: text,
+    optimized: optimized,
+    originalTokens,
+    optimizedTokens,
+    tokensSaved,
+    percentSaved,
+    originalEnergy,
+    optimizedEnergy,
+    energySaved,
+    suggestions: suggestions.slice(0, 3) // Show top 3 suggestions
+  };
+}
 };
 
 // Make available globally
