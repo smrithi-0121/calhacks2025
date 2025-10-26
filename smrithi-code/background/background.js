@@ -407,3 +407,56 @@ setInterval(cleanupOldData, 7 * 24 * 60 * 60 * 1000);
 cleanupOldData();
 
 console.log('AI Energy Tracker: Background service worker fully initialized');
+
+async function recordEnergySaved(originalEnergy, optimizedEnergy) {
+  const saved = originalEnergy - optimizedEnergy;
+  
+  const result = await chrome.storage.local.get(['energySaved', 'totalOptimizations']);
+  
+  await chrome.storage.local.set({
+    energySaved: (result.energySaved || 0) + saved,
+    totalOptimizations: (result.totalOptimizations || 0) + 1
+  });
+  
+  return saved;
+}
+
+// Add message handler
+if (message.type === 'ENERGY_SAVED') {
+  recordEnergySaved(message.originalEnergy, message.optimizedEnergy)
+    .then(saved => sendResponse({ success: true, saved }))
+    .catch(error => sendResponse({ success: false, error: error.message }));
+  return true;
+}
+
+const DAILY_LIMIT_WH = 10; // 10 Wh per day
+const WEEKLY_LIMIT_WH = 50; // 50 Wh per week
+
+async function checkLimits() {
+  const result = await chrome.storage.local.get([
+    'sessionEnergy',
+    'history'
+  ]);
+  
+  const todayEnergy = result.sessionEnergy || 0;
+  
+  // Calculate weekly total
+  const history = result.history || [];
+  const last7Days = history.slice(-7);
+  const weeklyEnergy = last7Days.reduce((sum, day) => sum + day.energy, 0) + todayEnergy;
+  
+  return {
+    daily: {
+      used: todayEnergy,
+      limit: DAILY_LIMIT_WH,
+      percentage: (todayEnergy / DAILY_LIMIT_WH) * 100,
+      exceeded: todayEnergy > DAILY_LIMIT_WH
+    },
+    weekly: {
+      used: weeklyEnergy,
+      limit: WEEKLY_LIMIT_WH,
+      percentage: (weeklyEnergy / WEEKLY_LIMIT_WH) * 100,
+      exceeded: weeklyEnergy > WEEKLY_LIMIT_WH
+    }
+  };
+}

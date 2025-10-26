@@ -108,10 +108,120 @@ const EnergyCalculator = {
     
     const savings = Math.floor((tokens - 100) / tokens * 100);
     return `💡 Try shortening by ~${savings}% to significantly reduce energy use.`;
+  },
+
+  /**
+   * Compare energy across different models
+   */
+  compareModels(text) {
+    const tokens = this.estimateTokens(text);
+    
+    const models = {};
+    for (const [model, energyPerToken] of Object.entries(this.ENERGY_PER_TOKEN)) {
+      if (model === 'default') continue;
+      
+      const energy = tokens * energyPerToken;
+      const carbon = this.calculateCarbon(energy);
+      
+      models[model] = {
+        energy: energy,
+        energyFormatted: this.formatEnergy(energy),
+        carbon: carbon,
+        carbonFormatted: this.formatCarbon(carbon),
+        tokens: tokens
+      };
+    }
+    
+    return models;
+  }
+};
+
+// Prompt Optimizer - Rule-based optimization without AI
+const PromptOptimizer = {
+  /**
+   * Optimize prompt without using AI
+   */
+  optimizePrompt(text) {
+    let optimized = text;
+    const suggestions = [];
+    
+    // 1. Remove filler words
+    const fillerWords = [
+      'just', 'really', 'very', 'quite', 'rather', 'somewhat',
+      'basically', 'actually', 'literally', 'honestly',
+      'I think', 'I believe', 'in my opinion', 'it seems like'
+    ];
+    
+    fillerWords.forEach(filler => {
+      const regex = new RegExp(`\\b${filler}\\b`, 'gi');
+      if (regex.test(optimized)) {
+        optimized = optimized.replace(regex, '');
+        suggestions.push(`Removed filler word: "${filler}"`);
+      }
+    });
+    
+    // 2. Replace verbose phrases
+    const replacements = {
+      'a lot of': 'many',
+      'in order to': 'to',
+      'due to the fact that': 'because',
+      'at this point in time': 'now',
+      'for the purpose of': 'for',
+      'in the event that': 'if',
+      'on the grounds that': 'because',
+      'with regard to': 'about',
+      'give consideration to': 'consider',
+      'make a decision': 'decide',
+      'come to a conclusion': 'conclude',
+      'provide assistance': 'help',
+      'please ': '',
+      'could you ': '',
+      'can you ': ''
+    };
+    
+    Object.entries(replacements).forEach(([verbose, concise]) => {
+      const regex = new RegExp(verbose, 'gi');
+      if (regex.test(optimized)) {
+        optimized = optimized.replace(regex, concise);
+        suggestions.push(`Shortened: "${verbose}" → "${concise}"`);
+      }
+    });
+    
+    // 3. Remove redundant punctuation
+    optimized = optimized.replace(/\.{2,}/g, '.');
+    optimized = optimized.replace(/!{2,}/g, '!');
+    optimized = optimized.replace(/\?{2,}/g, '?');
+    
+    // 4. Clean up extra whitespace
+    optimized = optimized.replace(/\s+/g, ' ').trim();
+    
+    // 5. Calculate savings
+    const originalTokens = EnergyCalculator.estimateTokens(text);
+    const optimizedTokens = EnergyCalculator.estimateTokens(optimized);
+    const tokensSaved = originalTokens - optimizedTokens;
+    const percentSaved = originalTokens > 0 ? (tokensSaved / originalTokens * 100).toFixed(1) : 0;
+    
+    const originalEnergy = EnergyCalculator.calculateEnergy(text);
+    const optimizedEnergy = EnergyCalculator.calculateEnergy(optimized);
+    const energySaved = originalEnergy - optimizedEnergy;
+    
+    return {
+      original: text,
+      optimized: optimized,
+      originalTokens,
+      optimizedTokens,
+      tokensSaved,
+      percentSaved,
+      originalEnergy,
+      optimizedEnergy,
+      energySaved,
+      suggestions: suggestions.slice(0, 3) // Show top 3 suggestions
+    };
   }
 };
 
 // Make available globally
 if (typeof window !== 'undefined') {
   window.EnergyCalculator = EnergyCalculator;
+  window.PromptOptimizer = PromptOptimizer;
 }

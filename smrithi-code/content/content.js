@@ -95,51 +95,143 @@ class AIEnergyTracker {
   }
 
   createOverlay() {
-    // Create overlay container
-    this.overlayElement = document.createElement('div');
-    this.overlayElement.id = 'ai-energy-overlay';
-    this.overlayElement.innerHTML = `
-      <div class="energy-tracker-container">
-        <div class="energy-header">
-          <span class="energy-icon">⚡</span>
-          <span class="energy-title">Energy Tracker</span>
-        </div>
-        <div class="energy-stats">
-          <div class="stat-item">
-            <span class="stat-label">Current Prompt:</span>
-            <span class="stat-value current-energy">0 mWh</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-label">Carbon:</span>
-            <span class="stat-value current-carbon">0 mg CO₂</span>
-          </div>
-          <div class="stat-item session-stats">
-            <span class="stat-label">Session Total:</span>
-            <span class="stat-value session-energy">0 Wh</span>
-          </div>
-        </div>
-        <div class="energy-bar-container">
-          <div class="energy-bar" style="width: 0%; background: #4ade80;"></div>
-        </div>
-        <div class="energy-suggestion">
-          Type to see energy impact...
-        </div>
-        <button class="minimize-btn" title="Minimize">−</button>
+  // Create overlay container
+  this.overlayElement = document.createElement('div');
+  this.overlayElement.id = 'ai-energy-overlay';
+  this.overlayElement.innerHTML = `
+    <div class="energy-tracker-container">
+      <div class="energy-header">
+        <span class="energy-icon">⚡</span>
+        <span class="energy-title">Energy Tracker</span>
       </div>
-    `;
+      <div class="energy-stats">
+        <div class="stat-item">
+          <span class="stat-label">Current Prompt:</span>
+          <span class="stat-value current-energy">0 mWh</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Carbon:</span>
+          <span class="stat-value current-carbon">0 mg CO₂</span>
+        </div>
+        <div class="stat-item session-stats">
+          <span class="stat-label">Session Total:</span>
+          <span class="stat-value session-energy">0 Wh</span>
+        </div>
+        <div class="stat-item saved-stats" style="background: rgba(76, 222, 128, 0.2);">
+          <span class="stat-label">💚 Energy Saved:</span>
+          <span class="stat-value energy-saved">0 Wh</span>
+        </div>
+      </div>
+      <div class="energy-bar-container">
+        <div class="energy-bar" style="width: 0%; background: #4ade80;"></div>
+      </div>
+      <div class="energy-suggestion">
+        Type to see energy impact...
+      </div>
+      <div class="optimization-section" style="display: none;">
+        <button class="optimize-btn">
+          🌱 Optimize Prompt (-<span class="savings-percent">0</span>% energy)
+        </button>
+        <div class="optimization-preview" style="display: none;">
+          <div class="preview-label">Optimized version:</div>
+          <div class="preview-text"></div>
+          <div class="preview-actions">
+            <button class="accept-optimize-btn">✓ Use This</button>
+            <button class="cancel-optimize-btn">✗ Cancel</button>
+          </div>
+        </div>
+      </div>
+      <button class="minimize-btn" title="Minimize">−</button>
+    </div>
+  `;
 
-    // Add to page
-    document.body.appendChild(this.overlayElement);
+  // Add to page
+  document.body.appendChild(this.overlayElement);
 
-    // Add minimize functionality
-    const minimizeBtn = this.overlayElement.querySelector('.minimize-btn');
-    const container = this.overlayElement.querySelector('.energy-tracker-container');
+  // Setup button handlers
+  this.setupOptimizationButtons();
+
+  // Add minimize functionality
+  const minimizeBtn = this.overlayElement.querySelector('.minimize-btn');
+  const container = this.overlayElement.querySelector('.energy-tracker-container');
+  
+  minimizeBtn.addEventListener('click', () => {
+    container.classList.toggle('minimized');
+    minimizeBtn.textContent = container.classList.contains('minimized') ? '+' : '−';
+  });
+}
+
+setupOptimizationButtons() {
+  const optimizeBtn = this.overlayElement.querySelector('.optimize-btn');
+  const optimizationSection = this.overlayElement.querySelector('.optimization-section');
+  const optimizationPreview = this.overlayElement.querySelector('.optimization-preview');
+  const acceptBtn = this.overlayElement.querySelector('.accept-optimize-btn');
+  const cancelBtn = this.overlayElement.querySelector('.cancel-optimize-btn');
+  
+  let currentOptimization = null;
+
+  optimizeBtn.addEventListener('click', () => {
+    const text = this.getTextContent();
+    if (!text || text.trim().length === 0) return;
+
+    // Get optimization
+    currentOptimization = window.PromptOptimizer.optimizePrompt(text);
     
-    minimizeBtn.addEventListener('click', () => {
-      container.classList.toggle('minimized');
-      minimizeBtn.textContent = container.classList.contains('minimized') ? '+' : '−';
+    // Show preview
+    this.overlayElement.querySelector('.preview-text').textContent = 
+      currentOptimization.optimized;
+    optimizationPreview.style.display = 'block';
+  });
+
+  acceptBtn.addEventListener('click', () => {
+    if (!currentOptimization) return;
+
+    // Replace text in textarea
+    if (this.textArea.tagName === 'TEXTAREA' || this.textArea.tagName === 'INPUT') {
+      this.textArea.value = currentOptimization.optimized;
+    } else {
+      this.textArea.textContent = currentOptimization.optimized;
+    }
+
+    // Trigger input event to update UI
+    this.textArea.dispatchEvent(new Event('input', { bubbles: true }));
+
+    // Record energy saved
+    this.recordEnergySaved(currentOptimization.energySaved);
+
+    // Hide preview
+    optimizationPreview.style.display = 'none';
+    
+    // Show success message
+    this.overlayElement.querySelector('.energy-suggestion').innerHTML = 
+      `✅ Optimized! Saved ${EnergyCalculator.formatEnergy(currentOptimization.energySaved)}`;
+  });
+
+  cancelBtn.addEventListener('click', () => {
+    optimizationPreview.style.display = 'none';
+    currentOptimization = null;
+  });
+}
+
+async recordEnergySaved(energySaved) {
+  try {
+    // Update local display
+    const currentSaved = parseFloat(this.overlayElement.dataset.totalSaved || 0);
+    const newTotal = currentSaved + energySaved;
+    this.overlayElement.dataset.totalSaved = newTotal;
+    
+    this.overlayElement.querySelector('.energy-saved').textContent = 
+      EnergyCalculator.formatEnergy(newTotal);
+
+    // Save to storage
+    const result = await chrome.storage.local.get('energySaved');
+    await chrome.storage.local.set({
+      energySaved: (result.energySaved || 0) + energySaved
     });
+  } catch (error) {
+    console.error('Error recording energy saved:', error);
   }
+}
 
   startMonitoring() {
     if (!this.textArea) {
@@ -216,6 +308,21 @@ class AIEnergyTracker {
     // Update current prompt energy data attribute
     this.overlayElement.dataset.currentEnergy = energy;
     this.overlayElement.dataset.currentCarbon = carbon;
+
+    // Show/hide optimization button based on prompt length
+  const optimizationSection = this.overlayElement.querySelector('.optimization-section');
+  const tokens = EnergyCalculator.estimateTokens(text);
+  
+  if (tokens > 50) {
+    optimizationSection.style.display = 'block';
+    
+    // Calculate potential savings
+    const optimization = window.PromptOptimizer.optimizePrompt(text);
+    this.overlayElement.querySelector('.savings-percent').textContent = 
+      optimization.percentSaved;
+  } else {
+    optimizationSection.style.display = 'none';
+  }
   }
 
   resetOverlay() {
@@ -279,18 +386,23 @@ class AIEnergyTracker {
   }
 
   async loadSessionStats() {
-    try {
-      const result = await chrome.storage.local.get(['sessionEnergy', 'sessionCarbon', 'totalPrompts']);
-      this.sessionEnergy = result.sessionEnergy || 0;
-      this.sessionCarbon = result.sessionCarbon || 0;
-      this.totalPrompts = result.totalPrompts || 0;
-      
-      this.overlayElement.querySelector('.session-energy').textContent = 
-        EnergyCalculator.formatEnergy(this.sessionEnergy);
-    } catch (error) {
-      console.error('Error loading session stats:', error);
-    }
+  try {
+    const result = await chrome.storage.local.get(['sessionEnergy', 'sessionCarbon', 'energySaved']);
+    this.sessionEnergy = result.sessionEnergy || 0;
+    this.sessionCarbon = result.sessionCarbon || 0;
+    
+    this.overlayElement.querySelector('.session-energy').textContent = 
+      EnergyCalculator.formatEnergy(this.sessionEnergy);
+    
+    // Load energy saved
+    const energySaved = result.energySaved || 0;
+    this.overlayElement.dataset.totalSaved = energySaved;
+    this.overlayElement.querySelector('.energy-saved').textContent = 
+      EnergyCalculator.formatEnergy(energySaved);
+  } catch (error) {
+    console.error('Error loading session stats:', error);
   }
+}
 
   async saveSessionStats() {
     try {
