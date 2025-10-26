@@ -2,11 +2,13 @@
 const EnergyCalculator = {
   // Energy per token in Watt-hours (Wh)
   ENERGY_PER_TOKEN: {
-    'chatgpt': 0.0017,    // GPT-3.5/4
-    'claude': 0.035,     // Claude
-    'gemini': 0.0012,     // Gemini
-    'perplexity': 0.0003, // Perplexity
-    'default': 0.0003
+    'chatgpt': 0.0864,    // GPT-3.5/4
+    'claude': 0.0700,     // Claude
+    'gemini': 0.0320,     // Gemini
+    'perplexity': 0.0800, // Perplexity
+    'grok': 0.00340, // Grok
+    'llama': 0.0640, // Llama
+    'default': 0.005
   },
 
   // Carbon intensity (gCO2 per kWh) - US average

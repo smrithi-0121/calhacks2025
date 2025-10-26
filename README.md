@@ -7,10 +7,11 @@
 * **Energy Calculator:** Instantly estimates the energy and CO₂ footprint of every AI prompt.
 * **Smart Rewrite Suggestions:** Recommends shorter, more efficient prompt alternatives that maintain intent and clarity.
 * **Impact Tracker:** Visualizes your total energy saved with relatable metrics
-* **Real-Time Insights:** Works within ChatGPT and other AI chat interfaces.
+* **Real-Time Insights:** Works within ChatGPT and other AI chat interfaces and displays counts as you type.
+* **Daily-Life Comparison** Equates energy usage to common activities like charging devices and driving.
 ---
 ## How It Works
-EcoPrompt uses published model energy benchmarks to estimate power consumption per prompt. When you submit a query, it analyzes token length, model type, and processing complexity to calculate your estimated energy use.
+pranAI uses published model energy benchmarks, obtained from a study by TRG DataCenters, to estimate power consumption per prompt. When you submit a query, it analyzes token length, model type, and processing complexity to calculate your estimated energy use.
 Then, it suggests a simpler, lower-energy version of your prompt without losing meaning.
 
 All data stays local to your browser — **no user information is collected or stored.**
@@ -18,7 +19,7 @@ All data stays local to your browser — **no user information is collected or s
 ## Getting Started
 1. Clone or download this repository.
 2. In Chrome, go to **chrome://extensions** → enable **Developer Mode** → **Load unpacked**.
-3. Select the project folder to install EcoPrompt.
+3. Select the project folder to install pranAI.
 4. Open ChatGPT (or another AI interface) and start prompting!
 ---
 
@@ -30,6 +31,6 @@ All data stays local to your browser — **no user information is collected or s
 ---
 
 ## Inspiration
-AI’s carbon footprint is growing — but awareness hasn’t caught up. pranAI empowers users to understand and minimize their impact, making sustainability an effortless part of every AI interaction.
+AI’s carbon footprint is growing, but awareness hasn’t caught up. pranAI empowers users to understand and minimize their impact, making sustainability an effortless part of every AI interaction.
 
-**pranAI:** *Cleaner Prompts for a Greener World*
+**pranAI:** *cleaner prompts for a greener world :)*
