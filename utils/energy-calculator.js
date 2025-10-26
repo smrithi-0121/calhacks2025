@@ -73,44 +73,48 @@ const EnergyCalculator = {
    * Get color based on energy level
    */
   getEnergyColor(energyWh) {
-    if (energyWh < 0.5) return '#4ade80'; // green
-    if (energyWh < 2) return '#fbbf24';   // yellow
+    if (energyWh < 2) return '#4ade80'; // green
+    if (energyWh < 8) return '#fbbf24';   // yellow
     return '#ef4444';                      // red
   },
 
   /**
-   * Get relatable comparison
-   */
-  getComparison(energyWh) {
-    const comparisons = [
-      { threshold: 0.1, text: '☕ Less than brewing a cup of coffee' },
-      { threshold: 0.5, text: '💡 Like a LED bulb for 2 minutes' },
-      { threshold: 1, text: '📱 Like charging your phone 2%' },
-      { threshold: 5, text: '💻 Like your laptop for 5 minutes' },
-      { threshold: 10, text: '🔋 Like charging a tablet' },
-      { threshold: Infinity, text: '⚡ Significant energy usage!' }
-    ];
+ * Get relatable comparison
+ */
+getComparison(energyWh) {
+  const comparisons = [
+    { threshold: 1, text: '☕ Less than brewing a cup of coffee' },      // Changed from 0.1
+    { threshold: 5, text: '💡 Like a LED bulb for 2 minutes' },         // Changed from 0.5
+    { threshold: 10, text: '📱 Like charging your phone 15%' },          // Changed from 1
+    { threshold: 20, text: '💻 Like your laptop for 20 minutes' },      // Changed from 5
+    { threshold: 50, text: '🔋 Like charging a tablet fully' },         // Changed from 10
+    { threshold: Infinity, text: '⚡ Significant energy usage!' }
+  ];
 
-    return comparisons.find(c => energyWh < c.threshold).text;
-  },
+  return comparisons.find(c => energyWh < c.threshold).text;
+}, 
 
   /**
-   * Suggest optimization
-   */
-  suggestOptimization(text) {
-    const tokens = this.estimateTokens(text);
-    
-    if (tokens < 50) {
-      return "✅ Your prompt is already efficient!";
-    }
-    
-    if (tokens < 150) {
-      return "💡 Consider removing filler words to save energy.";
-    }
-    
-    const savings = Math.floor((tokens - 100) / tokens * 100);
-    return `💡 Try shortening by ~${savings}% to significantly reduce energy use.`;
-  },
+ * Suggest optimization
+ */
+suggestOptimization(text) {
+  const tokens = this.estimateTokens(text);
+  
+  if (tokens < 20) {
+    return "✅ Your prompt is already very efficient!";
+  }
+  
+  if (tokens < 50) {
+    return "💡 Good length! Small optimizations possible.";
+  }
+  
+  if (tokens < 150) {
+    return "💡 Consider removing filler words to save energy.";
+  }
+  
+  const savings = Math.floor((tokens - 100) / tokens * 100);
+  return `💡 Try shortening by ~${savings}% to significantly reduce energy use.`;
+}, 
 
   /**
    * Compare energy across different models

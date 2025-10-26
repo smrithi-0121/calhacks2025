@@ -315,16 +315,16 @@ function showHighEnergyNotification(energy, carbon) {
  */
 function updateBadge(energyWh) {
   try {
-    if (energyWh < 1) {
+    if (energyWh < 2) {                                                    // Changed from 1
       chrome.action.setBadgeText({ text: '' });
-    } else if (energyWh < 10) {
+    } else if (energyWh < 20) {                                           // Changed from 10
       chrome.action.setBadgeText({ text: energyWh.toFixed(1) });
       chrome.action.setBadgeBackgroundColor({ color: '#4ade80' });
-    } else if (energyWh < 50) {
+    } else if (energyWh < 100) {                                          // Changed from 50
       chrome.action.setBadgeText({ text: Math.floor(energyWh).toString() });
       chrome.action.setBadgeBackgroundColor({ color: '#fbbf24' });
     } else {
-      chrome.action.setBadgeText({ text: '50+' });
+      chrome.action.setBadgeText({ text: '99+' });                       // Changed from 50+
       chrome.action.setBadgeBackgroundColor({ color: '#ef4444' });
     }
   } catch (error) {

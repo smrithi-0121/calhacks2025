@@ -271,40 +271,40 @@ async recordEnergySaved(energySaved) {
   }
 
   updateOverlay(text) {
-    if (!text || text.trim().length === 0) {
-      this.resetOverlay();
-      return;
-    }
+  if (!text || text.trim().length === 0) {
+    this.resetOverlay();
+    return;
+  }
 
-    const energy = EnergyCalculator.calculateEnergy(text, this.platform);
-    const carbon = EnergyCalculator.calculateCarbon(energy);
-    const color = EnergyCalculator.getEnergyColor(energy);
-    const suggestion = EnergyCalculator.suggestOptimization(text);
-    const comparison = EnergyCalculator.getComparison(energy);
+  const energy = EnergyCalculator.calculateEnergy(text, this.platform);
+  const carbon = EnergyCalculator.calculateCarbon(energy);
+  const color = EnergyCalculator.getEnergyColor(energy);
+  const suggestion = EnergyCalculator.suggestOptimization(text);
+  const comparison = EnergyCalculator.getComparison(energy);
 
-    // Update display
-    this.overlayElement.querySelector('.current-energy').textContent = 
-      EnergyCalculator.formatEnergy(energy);
-    this.overlayElement.querySelector('.current-carbon').textContent = 
-      EnergyCalculator.formatCarbon(carbon);
-    this.overlayElement.querySelector('.energy-suggestion').innerHTML = 
-      `${suggestion}<br><small>${comparison}</small>`;
+  // Update display
+  this.overlayElement.querySelector('.current-energy').textContent = 
+    EnergyCalculator.formatEnergy(energy);
+  this.overlayElement.querySelector('.current-carbon').textContent = 
+    EnergyCalculator.formatCarbon(carbon);
+  this.overlayElement.querySelector('.energy-suggestion').innerHTML = 
+    `${suggestion}<br><small>${comparison}</small>`;
 
-    // Update energy bar
-    const bar = this.overlayElement.querySelector('.energy-bar');
-    const percentage = Math.min((energy / 5) * 100, 100); // Max at 5 Wh
-    bar.style.width = `${percentage}%`;
-    bar.style.background = color;
+  // Update energy bar 
+  const bar = this.overlayElement.querySelector('.energy-bar');
+  const percentage = Math.min((energy / 10) * 100, 100); 
+  bar.style.width = `${percentage}%`;
+  bar.style.background = color;
 
-    // Update current prompt energy data attribute
-    this.overlayElement.dataset.currentEnergy = energy;
-    this.overlayElement.dataset.currentCarbon = carbon;
+  // Update current prompt energy data attribute
+  this.overlayElement.dataset.currentEnergy = energy;
+  this.overlayElement.dataset.currentCarbon = carbon;
 
-    // Show/hide optimization button based on prompt length
+  // Show/hide optimization button 
   const optimizationSection = this.overlayElement.querySelector('.optimization-section');
   const tokens = EnergyCalculator.estimateTokens(text);
   
-  if (tokens > 50) {
+  if (tokens > 0) { 
     optimizationSection.style.display = 'block';
     
     // Calculate potential savings
@@ -314,7 +314,7 @@ async recordEnergySaved(energySaved) {
   } else {
     optimizationSection.style.display = 'none';
   }
-  }
+}
 
   resetOverlay() {
     this.overlayElement.querySelector('.current-energy').textContent = '0 mWh';
