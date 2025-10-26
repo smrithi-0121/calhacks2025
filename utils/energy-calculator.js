@@ -3,7 +3,7 @@ const EnergyCalculator = {
   // Energy per token in Watt-hours (Wh)
   ENERGY_PER_TOKEN: {
     'chatgpt': 0.0017,    // GPT-3.5/4
-    'claude': 0.0003,     // Claude
+    'claude': 0.035,     // Claude
     'gemini': 0.0012,     // Gemini
     'perplexity': 0.0003, // Perplexity
     'default': 0.0003
