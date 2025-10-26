@@ -15,7 +15,7 @@ class AIEnergyTracker {
 
   detectPlatform() {
     const hostname = window.location.hostname;
-    if (hostname.includes('openai.com')) return 'chatgpt';
+    if (hostname.includes('chatgpt.com')) return 'chatgpt';
     if (hostname.includes('claude.ai')) return 'claude';
     if (hostname.includes('gemini.google.com')) return 'gemini';
     if (hostname.includes('perplexity.ai')) return 'perplexity';
